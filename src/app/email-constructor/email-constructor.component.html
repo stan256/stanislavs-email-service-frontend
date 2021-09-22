@@ -1,0 +1,97 @@
+<div class="wrapper">
+  <mat-card class="form-container">
+    <form [formGroup]="form">
+      <h1>Send an email</h1>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Subject</mat-label>
+        <input matInput formControlName="subject">
+        <mat-error *ngIf="form.controls.subject.hasError('required')">
+          The subject is required
+        </mat-error>
+      </mat-form-field>
+
+      <div class="inputs-array"
+           formArrayName="recipients"
+           *ngFor="let arrayItem of recipientsControlsArray.controls; let i=index">
+
+        <div class="d__flex">
+          <mat-form-field appearance="outline">
+            <mat-label>To</mat-label>
+            <input matInput [formControlName]="i">
+            <mat-error *ngIf="recipientsControlsArray.controls[i].hasError('required')">
+              The recipient is required
+            </mat-error>
+
+            <mat-error *ngIf="recipientsControlsArray.controls[i].hasError('email')">
+              Please, enter a valid email address.
+            </mat-error>
+          </mat-form-field>
+
+          <button *ngIf="i > 0; else removeButton"
+                  class="control-button"
+                  mat-icon-button color="primary"
+                  (click)="removeControl(recipientsControlsArray, i)">
+            <mat-icon>remove_circle</mat-icon>
+          </button>
+
+          <ng-template #removeButton>
+            <button class="control-button"
+                    mat-icon-button
+                    color="primary"
+                    (click)="addControl('recipients')">
+              <mat-icon>add_circle</mat-icon>
+            </button>
+          </ng-template>
+
+        </div>
+      </div>
+
+      <div class="inputs-array"
+           formArrayName="cc"
+           *ngFor="let arrayItem of ccControlsArray.controls; let i=index">
+
+        <div class="d__flex">
+          <mat-form-field appearance="outline">
+            <mat-label>CC</mat-label>
+            <input matInput [formControlName]="i">
+            <mat-error *ngIf="ccControlsArray.controls[i].hasError('email')">
+              Please, enter a valid email address.
+            </mat-error>
+          </mat-form-field>
+
+          <button *ngIf="i > 0; else removeButton"
+                  class="control-button"
+                  mat-icon-button
+                  color="primary"
+                  (click)="removeControl(ccControlsArray, i)">
+            <mat-icon>remove_circle</mat-icon>
+          </button>
+
+          <ng-template #removeButton>
+            <button class="control-button"
+                    mat-icon-button
+                    color="primary"
+                    (click)="addControl('cc')">
+              <mat-icon>add_circle</mat-icon>
+            </button>
+          </ng-template>
+
+        </div>
+      </div>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Message</mat-label>
+        <textarea matInput formControlName="body"></textarea>
+        <mat-error *ngIf="form.controls.subject.hasError('required')">
+          The message is required
+        </mat-error>
+      </mat-form-field>
+
+      <button [disabled]="!form.valid"
+              mat-raised-button
+              (click)="sendEmail()"
+              color="primary">Send</button>
+    </form>
+  </mat-card>
+</div>
