@@ -1,18 +1,22 @@
 import {FormArray, FormControl, FormGroup, Validators} from '@angular/forms';
-import {Component, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Subject} from 'rxjs';
+import {takeUntil} from 'rxjs/operators';
 
 import {NotificationsService} from 'src/app/shared/services/notifications.service';
 import {APIService} from 'src/app/shared/services/api.service';
-import {EmailInterface} from "../shared/email.interface";
+import {EmailInterface} from 'src/app/shared/email.interface';
 
 @Component({
   selector: 'app-email-constructor',
   templateUrl: './email-constructor.component.html',
   styleUrls: ['./email-constructor.component.scss'],
 })
-export class EmailConstructorComponent implements OnInit {
+export class EmailConstructorComponent implements OnInit, OnDestroy {
 
   public form: FormGroup;
+
+  private unsubscribeAll: Subject<any> = new Subject<any>();
 
   public get recipientsControlsArray(): FormArray {
     return this.form.controls.recipients as FormArray;
@@ -28,6 +32,11 @@ export class EmailConstructorComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribeAll.next();
+    this.unsubscribeAll.complete();
   }
 
   public initForm(): void {
@@ -56,11 +65,13 @@ export class EmailConstructorComponent implements OnInit {
   public sendEmail(): void {
     let formData: EmailInterface = this.form.value;
     formData.cc = formData.cc.filter(value => value != null)
+    formData.recipients = formData.recipients.filter(value => value != null)
 
     this.apiService.sendEmail(formData)
+      .pipe(takeUntil(this.unsubscribeAll))
       .subscribe(
-        () => this.notificationService.openSnackBar('Email was sent successfully'),
-        error => this.notificationService.openSnackBar(error.message)
+        () => this.notificationService.openSnackBar('Email was sent to provider successfully'),
+        error => this.notificationService.openSnackBar('Due to some issues, email was not sent')
       )
   }
 }

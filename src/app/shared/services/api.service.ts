@@ -14,6 +14,6 @@ export class APIService {
   }
 
   public sendEmail(emailData: EmailInterface): Observable<any> {
-    return this.http.post(environment.baseUrl + "/api/emails/send", emailData);
+    return this.http.post(environment.baseUrl + '/api/emails/send', emailData);
   }
 }
